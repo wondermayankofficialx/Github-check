@@ -9,10 +9,11 @@ on:
         type: choice
         default: smoke
         options:
-          - smoke
-          - light
-          - medium
-          - heavy
+  - smoke
+  - light
+  - medium
+  - heavy
+  - extreme
 
       confirmation:
         description: "Type LOAD_TEST_APPROVED to authorize the test"
