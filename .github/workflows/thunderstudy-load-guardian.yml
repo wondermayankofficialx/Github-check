@@ -92,5 +92,4 @@ jobs:
         if: steps.load.outcome == 'failure'
         run: |
           echo "Load test failed or crossed a safety threshold."
-          exit 1
-          
+          exit 1      
