@@ -12,13 +12,15 @@ const allowedHosts = [
   "physicswallah.thunderstudy.site"
 ];
 
-const parsed = new URL(target);
+// k6 does not provide the standard JavaScript URL constructor.
+// Validate the HTTPS scheme and hostname with a regular expression instead.
+const targetMatch = target.match(/^https:\/\/([^/:?#]+)(?::\d+)?(?:[/?#]|$)/i);
+const targetHostname = targetMatch?.[1]?.toLowerCase();
 
-if (
-  parsed.protocol !== "https:" ||
-  !allowedHosts.includes(parsed.hostname)
-) {
-  throw new Error("Target URL is not on the approved HTTPS allowlist.");
+if (!targetHostname || !allowedHosts.includes(targetHostname)) {
+  throw new Error(
+    `Target URL is not on the approved HTTPS allowlist: ${target}`
+  );
 }
 
 // Conservative initial load profiles.
