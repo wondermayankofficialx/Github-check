@@ -1,0 +1,95 @@
+name: ThunderStudy Load Guardian
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "Select the load-testing stage"
+        required: true
+        type: choice
+        default: smoke
+        options:
+          - smoke
+          - light
+          - medium
+          - heavy
+
+      confirmation:
+        description: "Type LOAD_TEST_APPROVED to authorize the test"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: thunderstudy-load-test
+  cancel-in-progress: false
+
+jobs:
+  load-test:
+    name: ThunderStudy Performance Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      TARGET_URL: https://thunderstudy.site/
+      LOAD_STAGE: ${{ inputs.stage }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Verify authorization
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if [ "$CONFIRMATION" != "LOAD_TEST_APPROVED" ]; then
+            echo "Authorization confirmation missing."
+            exit 1
+          fi
+
+          echo "Authorization confirmed."
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Create report directory
+        run: mkdir -p reports
+
+      - name: Run load test
+        id: load
+        continue-on-error: true
+        run: |
+          k6 run \
+            --summary-export=reports/k6-summary.json \
+            tests/load.js
+
+      - name: Send Telegram report
+        if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          LOAD_STAGE: ${{ inputs.stage }}
+          LOAD_OUTCOME: ${{ steps.load.outcome }}
+          TARGET_URL: ${{ env.TARGET_URL }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: node scripts/notify-load-test.mjs
+
+      - name: Upload k6 report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thunderstudy-load-report-${{ github.run_number }}
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Mark failed load test
+        if: steps.load.outcome == 'failure'
+        run: |
+          echo "Load test failed or crossed a safety threshold."
+          exit 1
+          
