@@ -1,0 +1,13 @@
+
+{
+  "name": "thunderstudy-guardian",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "monitor": "node monitor.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.56.1"
+  }
+}
