@@ -55,7 +55,19 @@ const profiles = {
       { duration: "2m", target: 50 },
       { duration: "1m", target: 0 }
     ]
-  }
+  },
+  
+extreme: {
+  stages: [
+    { duration: "2m", target: 100 },
+    { duration: "3m", target: 500 },
+    { duration: "3m", target: 1000 },
+    { duration: "5m", target: 2500 },
+    { duration: "5m", target: 5000 },
+    { duration: "2m", target: 0 }
+  ]
+}
+  
 };
 
 if (!profiles[stage]) {
