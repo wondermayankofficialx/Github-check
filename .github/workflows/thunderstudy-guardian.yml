@@ -21,22 +21,21 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: "20"
-          cache: npm
-          cache-dependency-path: package-lock.json
+          node-version: "22"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
       - name: Run Guardian monitoring
+        id: monitor
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -46,10 +45,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: thunderstudy-guardian-report
+          name: thunderstudy-guardian-${{ github.run_number }}
           path: |
             reports/
             screenshots/
           if-no-files-found: warn
           retention-days: 14
-          
