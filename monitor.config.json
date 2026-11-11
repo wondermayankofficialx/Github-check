@@ -1,0 +1,39 @@
+
+{
+  "timeoutMs": 30000,
+  "slowResponseMs": 5000,
+  "navigationWaitUntil": "domcontentloaded",
+
+  "targets": [
+    {
+      "name": "ThunderStudy Main",
+      "url": "https://thunderstudy.site/",
+      "requiredText": [
+        "ThunderStudy"
+      ]
+    },
+    {
+      "name": "NT ThunderStudy",
+      "url": "https://nt.thunderstudy.site/",
+      "requiredText": []
+    },
+    {
+      "name": "Physics Wallah ThunderStudy",
+      "url": "https://physicswallah.thunderstudy.site/",
+      "requiredText": []
+    }
+  ],
+
+  "ignoreConsoleErrorPatterns": [
+    "third-party",
+    "analytics"
+  ],
+
+  "ignoreFailedRequestPatterns": [
+    "google-analytics",
+    "googletagmanager",
+    "doubleclick",
+    "facebook.net",
+    "hotjar"
+  ]
+}
